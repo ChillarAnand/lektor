@@ -64,7 +64,7 @@ def _write_ssh_key_file(temp_fn, credentials):
                 for x in xrange(0, len(key), 64):
                     f.write(key[x:x + 64].encode('utf-8') + b'\n')
                 f.write(b'-----END %s PRIVATE KEY-----\n' % kt.upper())
-            os.chmod(temp_fn, 0600)
+            os.chmod(temp_fn, 0o600)
             return temp_fn
 
 
@@ -88,7 +88,7 @@ def _temporary_folder(env):
     folder = tempfile.mkdtemp(prefix='.deploytemp', dir=base)
     scratch = os.path.join(folder, 'scratch')
     os.mkdir(scratch)
-    os.chmod(scratch, 0755)
+    os.chmod(scratch, 0o755)
     try:
         yield scratch
     finally:
