@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from flask import Flask, request, abort
 from flask.helpers import safe_join
 from werkzeug.utils import append_slash_redirect

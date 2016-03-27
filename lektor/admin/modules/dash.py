@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from flask import Blueprint, render_template, abort, redirect, request, \
      g, url_for
 

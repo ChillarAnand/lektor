@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import os
 import sys
 import stat
@@ -10,6 +11,9 @@ from contextlib import contextmanager
 from itertools import chain
 from collections import deque, namedtuple
 
+from werkzeug.posixemulation import rename
+
+from lektor._compat import iteritems, text_type
 from lektor.context import Context
 from lektor.build_programs import builtin_build_programs
 from lektor.reporter import reporter
@@ -17,8 +21,6 @@ from lektor.sourcesearch import find_files
 from lektor.utils import prune_file_and_folder, fs_enc
 from lektor.environment import PRIMARY_ALT
 from lektor.buildfailures import FailureController
-
-from werkzeug.posixemulation import rename
 
 
 def create_tables(con):
@@ -142,7 +144,7 @@ class BuildState(object):
 
     def to_source_filename(self, filename):
         return self.path_cache.to_source_filename(filename)
-    
+
     def get_virtual_source_info(self, virtual_source_path):
         virtual_source = self.pad.get(virtual_source_path)
         if not virtual_source:
@@ -231,7 +233,7 @@ class BuildState(object):
         con = self.connect_to_database()
         try:
             cur = con.cursor()
-            for lang, title in info.title_i18n.iteritems():
+            for lang, title in iteritems(info.title_i18n):
                 cur.execute('''
                     insert or replace into source_info
                         (path, alt, lang, type, source, title)
@@ -331,7 +333,7 @@ class BuildState(object):
                     new_vinfo = self.get_virtual_source_info(info.path)
                     if not info.unchanged(new_vinfo):
                         return False
-                
+
                 # If the file info is different, then it clearly changed.
                 elif not info.unchanged(self.get_file_info(info.filename)):
                     return False
@@ -487,16 +489,14 @@ class FileInfo(object):
         try:
             h = hashlib.sha1()
             if os.path.isdir(self.filename):
-                h.update('DIR\x00')
+                h.update('DIR\x00'.encode('utf-8'))
                 for filename in sorted(os.listdir(self.filename)):
                     if self.env.is_uninteresting_source_name(filename):
                         continue
-                    if isinstance(filename, unicode):
-                        filename = filename.encode('utf-8')
-                    h.update(filename)
+                    h.update(filename.encode('utf-8'))
                     h.update(_describe_fs_path_for_checksum(
-                        os.path.join(self.filename, filename)))
-                    h.update('\x00')
+                        os.path.join(self.filename, filename)).encode('utf-8'))
+                    h.update('\x00'.encode('utf-8'))
             else:
                 with open(self.filename, 'rb') as f:
                     while 1:
@@ -531,19 +531,19 @@ class FileInfo(object):
             return True
 
         return self.checksum == other.checksum
-    
+
 
 class VirtualSourceInfo(object):
     def __init__(self, path, mtime=None, checksum=None):
         self.path = path
         self.mtime = mtime
         self.checksum = checksum
-        
+
     def unchanged(self, other):
         if not isinstance(other, VirtualSourceInfo):
-            raise TypeError("'other' must be a VirtualSourceInfo, not %r" 
+            raise TypeError("'other' must be a VirtualSourceInfo, not %r"
                             % other)
-        
+
         if self.path != other.path:
             raise ValueError("trying to compare mismatched virtual paths: "
                              "%r.unchanged(%r)", self, other)
@@ -896,7 +896,7 @@ class PathCache(object):
         if rv is not None:
             return rv
         folder = os.path.abspath(self.env.root_path)
-        if isinstance(folder, unicode) and not isinstance(filename, unicode):
+        if isinstance(folder, text_type) and not isinstance(filename, text_type):
             filename = filename.decode(fs_enc)
         filename = os.path.normpath(os.path.join(folder, filename))
         if filename.startswith(folder):

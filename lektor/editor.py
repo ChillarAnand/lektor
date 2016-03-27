@@ -1,9 +1,11 @@
+from __future__ import absolute_import
 import os
 import shutil
 import posixpath
 
 from collections import OrderedDict
 
+from lektor._compat import text_type, iteritems, string_types
 from lektor.metaformat import serialize
 from lektor.utils import atomic_open, is_valid_id, secure_filename, \
      increment_filename
@@ -67,7 +69,7 @@ def make_editor_session(pad, path, is_attachment=None, alt=PRIMARY_ALT,
     else:
         if datamodel is None:
             datamodel = pad.db.get_implied_datamodel(path, is_attachment, pad)
-        elif isinstance(datamodel, basestring):
+        elif isinstance(datamodel, string_types):
             datamodel = pad.db.datamodels[datamodel]
 
     if exists:
@@ -78,7 +80,7 @@ def make_editor_session(pad, path, is_attachment=None, alt=PRIMARY_ALT,
         if raw_data_fallback:
             raw_data_fallback.pop(key, None)
 
-    return EditorSession(pad, id, unicode(path), raw_data, raw_data_fallback,
+    return EditorSession(pad, id, text_type(path), raw_data, raw_data_fallback,
                          datamodel, record, exists, is_attachment, alt)
 
 
@@ -132,7 +134,7 @@ class EditorSession(object):
             label = self.id
         can_be_deleted = not self.datamodel.protected and not self.is_root
         return {
-            'data': dict(self.iteritems()),
+            'data': dict(iteritems(self)),
             'record_info': {
                 'id': self.id,
                 'path': self.path,
@@ -202,13 +204,13 @@ class EditorSession(object):
             self.commit()
 
     def update(self, *args, **kwargs):
-        for key, value in dict(*args, **kwargs).iteritems():
+        for key, value in iteritems(dict(*args, **kwargs)):
             self[key] = value
 
     def iteritems(self, fallback=True):
         done = set()
 
-        for key, value in self.original_data.iteritems():
+        for key, value in iteritems(self.original_data):
             done.add(key)
             if key in implied_keys:
                 continue
@@ -218,7 +220,7 @@ class EditorSession(object):
                 yield key, value
 
         if fallback and self.fallback_data:
-            for key, value in self.fallback_data.iteritems():
+            for key, value in iteritems(self.fallback_data):
                 if key in implied_keys or key in done:
                     continue
                 done.add(key)
@@ -254,7 +256,7 @@ class EditorSession(object):
     __iter__ = iterkeys
 
     def __len__(self):
-        return len(self.items())
+        return len(list(self.items()))
 
     def get_fs_path(self, alt=PRIMARY_ALT):
         """The path to the record file on the file system."""
@@ -400,10 +402,13 @@ class EditorSession(object):
         except OSError:
             pass
 
-        with atomic_open(self.fs_path, 'wb') as f:
+        with atomic_open(self.fs_path, 'w') as f:
             for chunk in serialize(self.iteritems(fallback=False),
                                    encoding='utf-8'):
-                f.write(chunk)
+                if isinstance(chunk, text_type):
+                    f.write(chunk)
+                else:
+                    f.write(chunk.decode('utf-8'))
 
     def __repr__(self):
         return '<%s %r%s%s>' % (

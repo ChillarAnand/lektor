@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import os
 
 from flask import Blueprint, g, request, current_app, url_for
