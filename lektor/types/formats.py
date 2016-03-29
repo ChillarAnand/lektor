@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from lektor.types import Type
 from lektor.markdown import Markdown
 

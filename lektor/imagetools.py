@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # -*- coding: utf-8 -*-
 import os
 import imghdr
@@ -10,6 +11,7 @@ from datetime import datetime
 from lektor.utils import get_dependent_url, portable_popen, locate_executable
 from lektor.reporter import reporter
 from lektor.uilink import BUNDLE_BIN_PATH
+from lektor._compat import iteritems
 
 
 # yay shitty library
@@ -35,19 +37,20 @@ class EXIFInfo(object):
     def __init__(self, d):
         self._mapping = d
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self._mapping)
+    __nonzero__ = __bool__
 
     def to_dict(self):
         rv = {}
-        for key, value in self.__class__.__dict__.iteritems():
+        for key, value in iteritems(self.__class__.__dict__):
             if key[:1] != '_' and isinstance(value, property):
                 rv[key] = getattr(self, key)
         return rv
 
     def _get_string(self, key):
         try:
-            return self._mapping[key].values.decode('utf-8', 'replace')
+            return self._mapping[key].values
         except KeyError:
             return None
 
@@ -142,7 +145,7 @@ class EXIFInfo(object):
     @property
     def flash_info(self):
         try:
-            return self._mapping['EXIF Flash'].printable.decode('utf-8')
+            return self._mapping['EXIF Flash'].printable
         except KeyError:
             return None
 
@@ -192,7 +195,7 @@ class EXIFInfo(object):
     def location(self):
         lat = self.latitude
         long = self.longitude
-        if lat is not None and long is not None:
+        if lat is not None and int is not None:
             return (lat, long)
 
 

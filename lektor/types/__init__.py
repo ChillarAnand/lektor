@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from jinja2 import Undefined
 
 from lektor.environment import PRIMARY_ALT

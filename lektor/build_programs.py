@@ -215,7 +215,7 @@ class PageBuildProgram(BuildProgram):
             if self.source.page_num is None:
                 child_sources.append(self._iter_paginated_children())
                 pq = p_config.get_pagination_query(self.source)
-                child_sources.append(set(all_children) - set(pq))
+                child_sources.append(x for x in all_children if x not in pq)
                 child_sources.append(self.source.attachments)
             else:
                 child_sources.append(self.source.pagination.items)

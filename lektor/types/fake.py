@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from lektor.types import Type
 from lektor.environment import PRIMARY_ALT
 from lektor.i18n import get_i18n_block

@@ -961,8 +961,9 @@ class Query(object):
         # otherwise we can load it directly.
         return self._get(id, page_num=page_num)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.first() is not None
+    __nonzero__ = __bool__
 
     def __iter__(self):
         """Iterates over all records matched."""

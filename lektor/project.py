@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import os
 import sys
 import hashlib
@@ -89,9 +90,9 @@ class Project(object):
     def get_package_cache_path(self):
         """The path where plugin packages are stored."""
         h = hashlib.md5()
-        h.update(self.id)
-        h.update(sys.version)
-        h.update(sys.prefix)
+        h.update(self.id.encode('utf-8'))
+        h.update(sys.version.encode('utf-8'))
+        h.update(sys.prefix.encode('utf-8'))
         return os.path.join(get_cache_dir(), 'packages', h.hexdigest())
 
     def content_path_from_filename(self, filename):
@@ -116,20 +117,20 @@ class Project(object):
         """Create a new environment for this project."""
         from lektor.environment import Environment
         return Environment(self, load_plugins=load_plugins)
-    
+
     @cached_property
     def excluded_assets(self):
         """List of glob patterns matching filenames of excluded assets.
-        
+
         Combines with default EXCLUDED_ASSETS.
         """
         config = self.open_config()
         return list(comma_delimited(config.get('project.excluded_assets', '')))
-    
+
     @cached_property
     def included_assets(self):
         """List of glob patterns matching filenames of included assets.
-        
+
         Overrides both excluded_assets and the default excluded patterns.
         """
         config = self.open_config()
