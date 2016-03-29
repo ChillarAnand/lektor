@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import os
 from datetime import date
 
@@ -46,7 +47,7 @@ def test_alt_fallback(pad):
 
     # Unless we include fallbacks in which case we will also see english
     # show up in the list.
-    assert get_alts(wolf_page, fallback=True) == ['de', 'en']
+    assert sorted(get_alts(wolf_page, fallback=True)) == ['de', 'en']
 
 
 def test_alt_parent(pad):
@@ -66,12 +67,12 @@ def test_url_matching_with_customized_slug_in_alt(pad):
     assert de['_source_alt'] == 'de'
     assert de.path == '/projects/slave'
 
-    assert get_alts(en) == ['de', 'en']
+    assert sorted(get_alts(en)) == ['de', 'en']
 
 
 def test_basic_alts(pad):
     with Context(pad=pad):
-        assert get_alts() == ['de', 'en']
+        assert sorted(get_alts()) == ['de', 'en']
 
 
 def test_basic_query_syntax(pad, F):

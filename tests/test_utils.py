@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 def test_join_path():
     from lektor.utils import join_path
 

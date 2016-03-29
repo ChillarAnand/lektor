@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 def test_cleanup_path():
     from lektor.utils import cleanup_path
 

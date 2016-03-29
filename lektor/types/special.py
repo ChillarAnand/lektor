@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from lektor.utils import slugify, Url
 from lektor.types.primitives import SingleInputType
 

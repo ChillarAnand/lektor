@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import datetime
 
 from lektor.datamodel import Field
@@ -226,7 +227,7 @@ def test_datetime(env, pad):
         assert rv.hour == 1
         assert rv.minute == 2
         assert rv.second == 3
-        assert rv.tzinfo in get_timezone('Asia/Seoul')._tzinfos.values()
+        assert rv.tzinfo in list(get_timezone('Asia/Seoul')._tzinfos.values())
 
         # KST - http://www.timeanddate.com/time/zones/kst
         rv = field.deserialize_value('2016-04-30 01:02:03 +0900', pad=pad)

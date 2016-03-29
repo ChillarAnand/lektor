@@ -1,5 +1,8 @@
+from __future__ import absolute_import
 import os
 from datetime import datetime
+
+from lektor._compat import iteritems
 
 
 def almost_equal(a, b, e=0.00001):
@@ -37,7 +40,7 @@ def test_exif(pad):
 
     assert isinstance(image.exif.to_dict(), dict)
 
-    for key, value in image.exif.to_dict().iteritems():
+    for key, value in iteritems(image.exif.to_dict()):
         assert getattr(image.exif, key) == value
 
 
@@ -53,7 +56,7 @@ def test_image_attributes(pad):
 def test_thumbnail_height(builder):
     builder.build_all()
     with open(os.path.join(builder.destination_path, 'index.html')) as f:
-        html = f.read().decode()
+        html = f.read()
 
     # Thumbnail is half the original width, so its computed height is half.
     assert '<img src="./test@192.jpg" width="192" height="256">' in html

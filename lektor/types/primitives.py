@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from datetime import date, datetime
 
 from markupsafe import Markup
@@ -109,7 +110,7 @@ class DateType(SingleInputType):
         if raw.value is None:
             return raw.missing_value('Missing date')
         try:
-            return date(*map(int, raw.value.split('-')))
+            return date(*list(map(int, raw.value.split('-'))))
         except Exception:
             return raw.bad_value('Bad date format')
 
@@ -122,8 +123,8 @@ class DateTimeType(SingleInputType):
             return raw.missing_value('Missing datetime')
         try:
             chunks = raw.value.split(' ')
-            date_info = map(int, chunks[0].split('-'))
-            time_info = map(int, chunks[1].split(':'))
+            date_info = list(map(int, chunks[0].split('-')))
+            time_info = list(map(int, chunks[1].split(':')))
             datetime_info = date_info + time_info
             result = datetime(*datetime_info)
 
